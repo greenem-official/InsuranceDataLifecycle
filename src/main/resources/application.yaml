@@ -22,8 +22,10 @@ spring:
 # Веса для интегрального индекса экологичности I (сумма = 1.0)
 app:
   ecology:
+    max-size-mb: 1024.0   # порог для нормировки объёма V (в МБ)
+    stale-days: 365       # порог «тёмных данных» (в днях)
     weights:
-      volume: 0.20      # w1 (V)
-      duplicates: 0.30  # w2 (D)
-      stale: 0.25       # w3 (S)
-      quality: 0.25     # w4 (Q)
+      volume: 0.20        # w1 (V)
+      duplicates: 0.30    # w2 (D)
+      stale: 0.25         # w3 (S)
+      quality: 0.25       # w4 (Q)
