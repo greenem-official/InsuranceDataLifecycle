@@ -1,3 +1,29 @@
 spring:
   application:
     name: InsuranceCompamy
+
+  datasource:
+    url: jdbc:postgresql://localhost:5405/insurance_data_eco
+    username: eco_user
+    password: eco_password
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  mongodb:
+    uri: mongodb://eco_admin:eco_password@localhost:27005/insurance_data_eco_logs?authSource=admin
+
+# Веса для интегрального индекса экологичности I (сумма = 1.0)
+app:
+  ecology:
+    weights:
+      volume: 0.20      # w1 (V)
+      duplicates: 0.30  # w2 (D)
+      stale: 0.25       # w3 (S)
+      quality: 0.25     # w4 (Q)
