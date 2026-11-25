@@ -1,0 +1,19 @@
+# kasko_policies_2025
+КАСКО полисы 2025
+Полисы КАСКО
+0
+
+# osago_policies_2025
+ОСАГО полисы 2025
+Полисы ОСАГО
+10
+
+# insurance_claims_archive
+Архив убытков 2019–2026
+Убытки
+15
+
+# insurance_claims_archive
+Клиентская база CRM
+Клиентская база
+800

@@ -23,6 +23,11 @@ spring:
       whitelabel:
         enabled: false
 
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
 # Веса для интегрального индекса экологичности I (сумма = 1.0)
 app:
   ecology:

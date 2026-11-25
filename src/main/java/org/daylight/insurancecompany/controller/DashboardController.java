@@ -125,6 +125,11 @@ public class DashboardController {
         return "dashboard";
     }
 
+    @GetMapping("/login")
+    public String loginPage() {
+        return "login";
+    }
+
     @PostMapping("/datasets/create")
     public String createDataset(@AuthenticationPrincipal UserDetails principal,
                                 @RequestParam String name,

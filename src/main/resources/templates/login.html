@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Вход — Экология данных</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex items-center justify-center p-6">
+
+<div class="max-w-md w-full bg-white rounded-xl shadow p-6 space-y-5">
+    <div class="border-b pb-3">
+        <h1 class="text-xl font-bold text-slate-900">Вход в систему</h1>
+        <p class="text-xs text-slate-500 mt-1">
+            Система управления жизненным циклом данных · Страховая компания
+        </p>
+    </div>
+
+    <div th:if="${param.error}" class="bg-rose-50 border border-rose-300 text-rose-800 px-3 py-2.5 rounded-lg text-xs">
+        Неверный email или пароль. Проверьте введённые данные.
+    </div>
+    <div th:if="${param.logout}" class="bg-emerald-50 border border-emerald-300 text-emerald-800 px-3 py-2.5 rounded-lg text-xs">
+        Вы успешно вышли из аккаунта.
+    </div>
+
+    <form th:action="@{/login}" method="post" class="space-y-4 text-sm">
+        <div>
+            <label for="email" class="block text-xs font-medium text-slate-600 mb-1">Email</label>
+            <input id="email" type="email" name="email" required autofocus
+                   placeholder="user@insurance.local"
+                   class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-800">
+        </div>
+
+        <div>
+            <label for="password" class="block text-xs font-medium text-slate-600 mb-1">Пароль</label>
+            <input id="password" type="password" name="password" required
+                   placeholder="••••••••"
+                   class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-800">
+        </div>
+
+        <button type="submit"
+                class="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-2.5 rounded-lg transition">
+            Войти
+        </button>
+    </form>
+
+    <div class="text-center pt-1">
+        <a th:href="@{/about}" class="text-xs text-slate-500 hover:text-slate-800 underline">
+            Об авторе и проекте
+        </a>
+    </div>
+</div>
+
+</body>
+</html>
