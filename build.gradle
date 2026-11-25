@@ -6,7 +6,7 @@ plugins {
 
 group = 'org.daylight'
 version = '0.0.1-SNAPSHOT'
-description = 'InsuranceCompamy'
+description = 'InsuranceCompany'
 
 java {
     toolchain {

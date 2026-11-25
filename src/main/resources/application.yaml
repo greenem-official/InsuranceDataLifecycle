@@ -1,6 +1,6 @@
 spring:
   application:
-    name: InsuranceCompamy
+    name: InsuranceCompany
 
   datasource:
     url: jdbc:postgresql://localhost:5405/insurance_data_eco
