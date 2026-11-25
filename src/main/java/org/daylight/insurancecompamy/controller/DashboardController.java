@@ -3,10 +3,7 @@ package org.daylight.insurancecompamy.controller;
 import lombok.RequiredArgsConstructor;
 import org.daylight.insurancecompamy.documents.AuditLog;
 import org.daylight.insurancecompamy.documents.BackupMetadata;
-import org.daylight.insurancecompamy.dto.AuditAction;
-import org.daylight.insurancecompamy.dto.BackupType;
-import org.daylight.insurancecompamy.dto.EcologyReportDto;
-import org.daylight.insurancecompamy.dto.Role;
+import org.daylight.insurancecompamy.dto.*;
 import org.daylight.insurancecompamy.entity.Dataset;
 import org.daylight.insurancecompamy.entity.MetricsHistory;
 import org.daylight.insurancecompamy.entity.User;
@@ -15,12 +12,14 @@ import org.daylight.insurancecompamy.repositories.mongodb.BackupMetadataReposito
 import org.daylight.insurancecompamy.repositories.postgresql.DatasetRepository;
 import org.daylight.insurancecompamy.repositories.postgresql.MetricsHistoryRepository;
 import org.daylight.insurancecompamy.repositories.postgresql.UserRepository;
+import org.daylight.insurancecompamy.service.CsvInventoryService;
 import org.daylight.insurancecompamy.service.EcologyService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
@@ -39,6 +38,7 @@ public class DashboardController {
     private final AuditLogRepository auditLogRepository;
     private final BackupMetadataRepository backupMetadataRepository;
     private final EcologyService ecologyService;
+    private final CsvInventoryService csvInventoryService;
 
     @GetMapping("/")
     public String dashboard(@AuthenticationPrincipal UserDetails principal, Model model) {
@@ -71,16 +71,34 @@ public class DashboardController {
                                 @RequestParam(required = false) String checksumMd5,
                                 @RequestParam(defaultValue = "0") int daysSinceLastAccess,
                                 @RequestParam(defaultValue = "1825") Integer retentionDays,
+                                @RequestParam(value = "file", required = false) MultipartFile file,
                                 RedirectAttributes redirectAttributes) {
         User currentUser = userRepository.findByEmail(principal.getUsername()).orElseThrow();
+
+        BigDecimal finalSizeMb = sizeMb;
+        Long finalRecordCount = recordCount;
+        String finalMd5 = checksumMd5;
+        Double csvDupRatio = null;
+        Double csvMissRatio = null;
+
+        if (file != null && !file.isEmpty()) {
+            CsvInventoryResult inv = csvInventoryService.analyze(file);
+            finalSizeMb = inv.getSizeMb();
+            finalRecordCount = inv.getRecordCount();
+            if (finalMd5 == null || finalMd5.isBlank()) {
+                finalMd5 = inv.getChecksumMd5();
+            }
+            csvDupRatio = inv.getDuplicateRowRatio();
+            csvMissRatio = inv.getMissingFieldRatio();
+        }
 
         Dataset saved = datasetRepository.save(Dataset.builder()
                 .owner(currentUser)
                 .name(name)
                 .category(category)
-                .sizeMb(sizeMb)
-                .recordCount(recordCount)
-                .checksumMd5(checksumMd5)
+                .sizeMb(finalSizeMb)
+                .recordCount(finalRecordCount)
+                .checksumMd5(finalMd5)
                 .lastAccessedAt(Instant.now().minus(daysSinceLastAccess, ChronoUnit.DAYS))
                 .retentionDays(retentionDays)
                 .build());
@@ -89,10 +107,15 @@ public class DashboardController {
                 .timestamp(Instant.now())
                 .userId(currentUser.getId())
                 .action(AuditAction.CREATE)
-                .details(Map.of("datasetId", saved.getId(), "name", saved.getName()))
+                .details(Map.of(
+                        "datasetId", saved.getId(),
+                        "name", saved.getName(),
+                        "fromCsv", file != null && !file.isEmpty()
+                ))
                 .build());
 
-        EcologyReportDto report = ecologyService.evaluateAndSave(saved.getId(), currentUser.getId());
+        EcologyReportDto report = ecologyService.evaluateAndSave(
+                saved.getId(), currentUser.getId(), csvDupRatio, csvMissRatio);
         redirectAttributes.addFlashAttribute("lastReport", report);
         return "redirect:/";
     }

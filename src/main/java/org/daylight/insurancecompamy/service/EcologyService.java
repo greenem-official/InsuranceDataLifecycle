@@ -23,7 +23,6 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class EcologyService {
-
     private final DatasetRepository datasetRepository;
     private final MetricsHistoryRepository metricsHistoryRepository;
     private final AuditLogRepository auditLogRepository;
@@ -31,28 +30,47 @@ public class EcologyService {
 
     @Transactional
     public EcologyReportDto evaluateAndSave(Long datasetId, Long actorUserId) {
+        return evaluateAndSave(datasetId, actorUserId, null, null);
+    }
+
+    @Transactional
+    public EcologyReportDto evaluateAndSave(Long datasetId,
+                                            Long actorUserId,
+                                            Double csvDuplicateRatio,
+                                            Double csvMissingRatio) {
         Dataset dataset = datasetRepository.findById(datasetId)
                 .orElseThrow(() -> new IllegalArgumentException("Набор данных не найден: " + datasetId));
 
+        // V — объёмная метрика [0..1][cite: 1]
         double sizeMb = dataset.getSizeMb() != null ? dataset.getSizeMb().doubleValue() : 0.0;
         double v = clamp01(sizeMb / props.getMaxSizeMb());
 
-        double d = 0.0;
+        // D — доля дубликатов (по MD5 наборов и по строкам CSV)
+        double dByHash = 0.0;
         if (dataset.getChecksumMd5() != null && !dataset.getChecksumMd5().isBlank()) {
             long sameHashCount = datasetRepository.findByChecksumMd5(dataset.getChecksumMd5()).size();
             if (sameHashCount > 1) {
-                d = (double) (sameHashCount - 1) / sameHashCount;
+                dByHash = (double) (sameHashCount - 1) / sameHashCount;
             }
         }
+        double d = clamp01(csvDuplicateRatio != null
+                ? Math.max(dByHash, csvDuplicateRatio)
+                : dByHash);
 
+        // S — доля «тёмных данных» (без обращений > staleDays)[cite: 1]
         double s = 0.0;
         Instant cutoff = Instant.now().minus(props.getStaleDays(), ChronoUnit.DAYS);
         if (dataset.getLastAccessedAt() == null || dataset.getLastAccessedAt().isBefore(cutoff)) {
             s = 1.0;
         }
 
-        double q = calculateMissingFieldsRatio(dataset);
+        // Q — доля записей/полей с дефектами качества (метаданные + строки CSV)
+        double qMeta = calculateMissingFieldsRatio(dataset);
+        double q = clamp01(csvMissingRatio != null
+                ? Math.max(qMeta, csvMissingRatio)
+                : qMeta);
 
+        // Интегральный индекс экологичности I[cite: 1]
         var w = props.getWeights();
         double rawIndex = w.getVolume() * (1.0 - v)
                 + w.getDuplicates() * (1.0 - d)
@@ -60,7 +78,6 @@ public class EcologyService {
                 + w.getQuality() * (1.0 - q);
         double integralIndex = clamp01(rawIndex);
 
-        // Сохраняем снимок в историю метрик (PostgreSQL)[cite: 1]
         metricsHistoryRepository.save(MetricsHistory.builder()
                 .dataset(dataset)
                 .integralIndex((float) integralIndex)
@@ -70,7 +87,6 @@ public class EcologyService {
         List<EcologyReportDto.RecommendationDto> recommendations =
                 buildRecommendations(dataset, sizeMb, v, d, s, q, integralIndex);
 
-        // Пишем событие в журнал аудита (MongoDB)[cite: 1]
         if (actorUserId != null) {
             auditLogRepository.save(AuditLog.builder()
                     .timestamp(Instant.now())
@@ -163,7 +179,7 @@ public class EcologyService {
     }
 
     private double clamp01(double value) {
-        return Math.clamp(value, 0.0, 1.0);
+        return Math.max(0.0, Math.min(1.0, value));
     }
 
     private double round2(double value) {

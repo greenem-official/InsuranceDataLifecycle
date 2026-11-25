@@ -57,14 +57,20 @@
     <div th:if="${user.role.name() == 'OWNER' or user.role.name() == 'STEWARD'}"
          class="bg-white rounded-xl shadow p-5">
         <h2 class="text-lg font-semibold mb-3">Загрузить / зарегистрировать набор данных</h2>
-        <form th:action="@{/datasets/create}" method="post" class="grid grid-cols-1 md:grid-cols-6 gap-3 text-sm">
+        <form th:action="@{/datasets/create}" method="post" enctype="multipart/form-data"
+              class="grid grid-cols-1 md:grid-cols-6 gap-3 text-sm">
             <input type="text" name="name" placeholder="Название (напр. КАСКО Q3)" required class="border rounded px-3 py-2">
             <input type="text" name="category" placeholder="Категория (Полисы / Убытки)" class="border rounded px-3 py-2">
-            <input type="number" step="0.01" name="sizeMb" placeholder="Размер (МБ)" class="border rounded px-3 py-2">
+            <input type="number" step="0.0001" name="sizeMb" placeholder="Размер (МБ)" class="border rounded px-3 py-2">
             <input type="number" name="recordCount" placeholder="Кол-во записей" class="border rounded px-3 py-2">
-            <input type="text" name="checksumMd5" placeholder="MD5 хеш (32 симв.)" maxlength="32" class="border rounded px-3 py-2">
+            <input type="text" name="checksumMd5" placeholder="MD5 (или из CSV)" maxlength="32" class="border rounded px-3 py-2">
             <input type="number" name="daysSinceLastAccess" placeholder="Дней без доступа" value="0" class="border rounded px-3 py-2">
-            <button type="submit" class="md:col-span-6 bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 rounded">
+
+            <input type="file" name="file" accept=".csv,text/csv"
+                   class="md:col-span-6 border rounded px-3 py-2 bg-white">
+
+            <button type="submit"
+                    class="md:col-span-6 bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 rounded">
                 Сохранить и рассчитать экологичность
             </button>
         </form>
