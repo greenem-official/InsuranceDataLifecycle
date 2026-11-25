@@ -2,6 +2,7 @@ package org.daylight.insurancecompamy.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.daylight.insurancecompamy.dto.LifecycleStatus;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -42,4 +43,9 @@ public class Dataset {
 
     @Column(name = "retention_days")
     private Integer retentionDays;
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    @Column(nullable = false)
+    private LifecycleStatus status = LifecycleStatus.ACTIVE;
 }
