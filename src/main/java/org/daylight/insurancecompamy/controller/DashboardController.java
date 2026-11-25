@@ -84,6 +84,31 @@ public class DashboardController {
         List<BackupMetadata> backups = backupMetadataRepository.findAllByOrderByCreatedAtDesc();
         StorageCostReportDto costReport = storageCostService.calculate(datasets);
 
+        List<RetentionRule> retentionRules = retentionRuleRepository.findAll();
+        Map<String, Integer> retentionByCategory = new HashMap<>();
+        for (RetentionRule r : retentionRules) {
+            if (r.getCategory() != null && r.getDaysToKeep() != null) {
+                retentionByCategory.put(r.getCategory().trim().toLowerCase(), r.getDaysToKeep());
+            }
+        }
+
+        Set<Long> expiredDatasetIds = new HashSet<>();
+        Instant now = Instant.now();
+        for (Dataset ds : datasets) {
+            if (ds.getCategory() != null && ds.getLastAccessedAt() != null) {
+                Integer limit = retentionByCategory.get(ds.getCategory().trim().toLowerCase());
+                if (limit != null && ChronoUnit.DAYS.between(ds.getLastAccessedAt(), now) > limit) {
+                    expiredDatasetIds.add(ds.getId());
+                }
+            }
+        }
+
+        model.addAttribute("retentionRules", retentionRules);
+        model.addAttribute("expiredDatasetIds", expiredDatasetIds);
+        if (currentUser.getRole() == Role.ADMIN) {
+            model.addAttribute("allUsers", userRepository.findAll());
+        }
+
         model.addAttribute("user", currentUser);
         model.addAttribute("datasets", datasets);
         model.addAttribute("latestIndexByDataset", latestIndexByDataset);
@@ -351,5 +376,98 @@ public class DashboardController {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
         return "redirect:/";
+    }
+
+    // Смена роли пользователя администратором
+    @PostMapping("/admin/users/{id}/role")
+    public String updateUserRole(@PathVariable Long id,
+                                 @RequestParam Role role,
+                                 @AuthenticationPrincipal UserDetails principal,
+                                 RedirectAttributes redirectAttributes) {
+        User currentUser = userRepository.findByEmail(principal.getUsername()).orElseThrow();
+        if (currentUser.getRole() != Role.ADMIN) {
+            return "redirect:/";
+        }
+
+        User targetUser = userRepository.findById(id).orElseThrow();
+        Role oldRole = targetUser.getRole();
+        targetUser.setRole(role);
+        userRepository.save(targetUser);
+
+        auditLogRepository.save(AuditLog.builder()
+                .timestamp(Instant.now())
+                .userId(currentUser.getId())
+                .action(AuditAction.EDIT)
+                .details(Map.of(
+                        "event", "USER_ROLE_CHANGED",
+                        "targetUserEmail", targetUser.getEmail(),
+                        "oldRole", oldRole.name(),
+                        "newRole", role.name()
+                ))
+                .build());
+
+        redirectAttributes.addFlashAttribute("statusMessage",
+                "Роль пользователя " + targetUser.getFullName() + " изменена на " + role.name());
+        return "redirect:/";
+    }
+
+    // Выгрузка сводного отчёта об экологичности данных (для AUDITOR и руководства)
+    @GetMapping(value = "/reports/ecology.csv", produces = "text/csv; charset=UTF-8")
+    @ResponseBody
+    public org.springframework.http.ResponseEntity<byte[]> exportEcologyReport(
+            @AuthenticationPrincipal UserDetails principal) {
+        User currentUser = userRepository.findByEmail(principal.getUsername()).orElseThrow();
+        Long ownerFilterId = (currentUser.getRole() == Role.OWNER) ? currentUser.getId() : null;
+
+        List<Dataset> datasets = datasetRepository.searchDatasets(ownerFilterId, null, null);
+        List<MetricsHistory> history = metricsHistoryRepository.findAll();
+
+        Map<Long, MetricsHistory> latestMetrics = new HashMap<>();
+        for (MetricsHistory mh : history) {
+            if (mh.getDataset() != null) {
+                MetricsHistory prev = latestMetrics.get(mh.getDataset().getId());
+                if (prev == null || (mh.getCalculatedAt() != null && prev.getCalculatedAt() != null
+                        && mh.getCalculatedAt().isAfter(prev.getCalculatedAt()))) {
+                    latestMetrics.put(mh.getDataset().getId(), mh);
+                }
+            }
+        }
+
+        StringBuilder csv = new StringBuilder();
+        // BOM для корректного открытия кириллицы в Excel
+        csv.append('\uFEFF');
+        csv.append("ID;Название;Категория;Размер_МБ;Записей;MD5;Статус;Владелец;Индекс_I;Дата_расчёта\n");
+
+        for (Dataset ds : datasets) {
+            MetricsHistory mh = latestMetrics.get(ds.getId());
+            csv.append(ds.getId()).append(';')
+                    .append(escapeCsv(ds.getName())).append(';')
+                    .append(escapeCsv(ds.getCategory())).append(';')
+                    .append(ds.getSizeMb() != null ? ds.getSizeMb().toPlainString() : "0").append(';')
+                    .append(ds.getRecordCount() != null ? ds.getRecordCount() : 0).append(';')
+                    .append(escapeCsv(ds.getChecksumMd5())).append(';')
+                    .append(ds.getStatus() != null ? ds.getStatus().name() : "ACTIVE").append(';')
+                    .append(ds.getOwner() != null ? escapeCsv(ds.getOwner().getFullName()) : "").append(';')
+                    .append(mh != null && mh.getIntegralIndex() != null ? mh.getIntegralIndex() : "").append(';')
+                    .append(mh != null && mh.getCalculatedAt() != null ? mh.getCalculatedAt().toString() : "").append('\n');
+        }
+
+        auditLogRepository.save(AuditLog.builder()
+                .timestamp(Instant.now())
+                .userId(currentUser.getId())
+                .action(AuditAction.VIEW)
+                .details(Map.of("event", "ECOLOGY_CSV_REPORT_EXPORTED", "rows", datasets.size()))
+                .build());
+
+        byte[] bytes = csv.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        return org.springframework.http.ResponseEntity.ok()
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"insurance_ecology_report.csv\"")
+                .body(bytes);
+    }
+
+    private String escapeCsv(String val) {
+        if (val == null) return "";
+        return "\"" + val.replace("\"", "\"\"") + "\"";
     }
 }
