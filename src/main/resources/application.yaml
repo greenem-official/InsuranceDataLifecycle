@@ -18,6 +18,10 @@ spring:
 
   mongodb:
     uri: mongodb://eco_admin:eco_password@localhost:27005/insurance_data_eco_logs?authSource=admin
+  web:
+    error:
+      whitelabel:
+        enabled: false
 
 # Веса для интегрального индекса экологичности I (сумма = 1.0)
 app:

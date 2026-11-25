@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Об авторе — Экология данных</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 text-slate-800">
+
+<header class="bg-slate-900 text-white px-6 py-4 flex flex-wrap justify-between items-center gap-3">
+    <div>
+        <h1 class="text-xl font-bold">Об авторе и курсовом проекте</h1>
+        <p class="text-xs text-slate-300">Экология данных · Страховая компания</p>
+    </div>
+    <div class="flex items-center gap-3">
+        <a th:href="@{/}" class="bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded text-sm">
+            На дашборд
+        </a>
+        <span th:if="${user != null}" class="text-sm">
+            <strong th:text="${user.fullName}">Пользователь</strong>
+            (<span class="px-2 py-0.5 bg-emerald-600 rounded text-xs" th:text="${user.role}">ROLE</span>)
+        </span>
+    </div>
+</header>
+
+<main class="max-w-4xl mx-auto p-6 space-y-6">
+    <div class="bg-white rounded-xl shadow p-6 space-y-4">
+        <h2 class="text-lg font-semibold border-b pb-2">Сведения об авторе</h2>
+        <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+            <div>
+                <dt class="text-slate-500">ФИО студента</dt>
+                <dd class="font-medium mt-0.5">Укажите ваше ФИО</dd>
+            </div>
+            <div>
+                <dt class="text-slate-500">Учебное заведение / группа</dt>
+                <dd class="font-medium mt-0.5">Финансовый университет · Укажите группу</dd>
+            </div>
+            <div>
+                <dt class="text-slate-500">Контакты (email / Telegram)</dt>
+                <dd class="font-medium mt-0.5">student@example.com · @username</dd>
+            </div>
+            <div>
+                <dt class="text-slate-500">Сроки выполнения проекта</dt>
+                <dd class="font-medium mt-0.5">Сентябрь — Ноябрь 2026</dd>
+            </div>
+        </dl>
+    </div>
+
+    <div class="bg-white rounded-xl shadow p-6 space-y-3">
+        <h2 class="text-lg font-semibold border-b pb-2">Опыт работы со стеком и архитектура решения</h2>
+        <p class="text-sm text-slate-700 leading-relaxed">
+            В рамках курсового проекта реализовано веб-приложение на базе <strong>Spring Boot</strong> и
+            <strong>Spring Security</strong> с разграничением прав по ролям (<code>OWNER</code>, <code>STEWARD</code>,
+            <code>AUDITOR</code>, <code>ADMIN</code>). Реляционные данные наборов, правил хранения и истории метрик
+            хранятся в <strong>PostgreSQL</strong> (Spring Data JPA), а журнал аудита и резервные копии с контрольной
+            суммой SHA-256 — в <strong>MongoDB</strong> (Spring Data MongoDB). Пользовательский интерфейс построен на
+            <strong>Thymeleaf</strong>, <strong>Tailwind CSS</strong> и <strong>Chart.js</strong>.
+        </p>
+    </div>
+</main>
+</body>
+</html>
