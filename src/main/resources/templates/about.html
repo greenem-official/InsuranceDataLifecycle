@@ -2,61 +2,107 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Об авторе — Экология данных</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>О проекте и авторе — Data Ecology &amp; Lifecycle</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+        .font-mono-num { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+    </style>
 </head>
-<body class="bg-slate-100 text-slate-800">
+<body class="bg-[#EAEEF3] text-slate-900 antialiased selection:bg-slate-900 selection:text-white">
 
-<header class="bg-slate-900 text-white px-6 py-4 flex flex-wrap justify-between items-center gap-3">
-    <div>
-        <h1 class="text-xl font-bold">Об авторе и курсовом проекте</h1>
-        <p class="text-xs text-slate-300">Экология данных · Страховая компания</p>
-    </div>
-    <div class="flex items-center gap-3">
-        <a th:href="@{/}" class="bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded text-sm">
-            На дашборд
-        </a>
-        <span th:if="${user != null}" class="text-sm">
-            <strong th:text="${user.fullName}">Пользователь</strong>
-            (<span class="px-2 py-0.5 bg-emerald-600 rounded text-xs" th:text="${user.role}">ROLE</span>)
-        </span>
+<header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-[1380px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3 min-w-0">
+            <div class="w-7 h-7 rounded bg-teal-500/20 border border-teal-400/40 text-teal-300 flex items-center justify-center text-xs font-semibold tracking-tight shrink-0">
+                DE
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="font-semibold text-sm text-white truncate">Data Ecology &amp; Lifecycle</span>
+                <span class="hidden sm:inline-block text-[10px] font-mono-num px-1.5 py-0.5 rounded border border-slate-700 bg-slate-800 text-slate-300">
+                    INSURANCE CORE
+                </span>
+            </div>
+            <nav class="hidden md:flex items-center gap-1 ml-6 text-xs font-medium">
+                <a th:href="@{/}" class="px-3 py-1.5 rounded text-slate-300 hover:text-white hover:bg-slate-800/70 transition">Рабочий стол</a>
+                <a th:href="@{/about}" class="px-3 py-1.5 rounded bg-slate-800 text-white border border-slate-700">О проекте и авторе</a>
+            </nav>
+        </div>
+
+        <div class="flex items-center gap-3 text-xs">
+            <a th:href="@{/}" class="bg-teal-600 hover:bg-teal-500 text-white font-medium px-3 py-1.5 rounded transition">
+                На рабочий стол
+            </a>
+            <span th:if="${user != null}" class="hidden sm:inline-flex items-center gap-2 pl-3 border-l border-slate-700">
+                <strong class="font-medium text-slate-100" th:text="${user.fullName}">Пользователь</strong>
+                <span class="font-mono-num text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-800 border border-slate-600 text-teal-300"
+                      th:text="${user.role}">ROLE</span>
+            </span>
+        </div>
     </div>
 </header>
 
-<main class="max-w-4xl mx-auto p-6 space-y-6">
-    <div class="bg-white rounded-xl shadow p-6 space-y-4">
-        <h2 class="text-lg font-semibold border-b pb-2">Сведения об авторе</h2>
-        <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-            <div>
-                <dt class="text-slate-500">ФИО студента</dt>
-                <dd class="font-medium mt-0.5">Укажите ваше ФИО</dd>
-            </div>
-            <div>
-                <dt class="text-slate-500">Учебное заведение / группа</dt>
-                <dd class="font-medium mt-0.5">Финансовый университет · Укажите группу</dd>
-            </div>
-            <div>
-                <dt class="text-slate-500">Контакты (email / Telegram)</dt>
-                <dd class="font-medium mt-0.5">student@example.com · @username</dd>
-            </div>
-            <div>
-                <dt class="text-slate-500">Сроки выполнения проекта</dt>
-                <dd class="font-medium mt-0.5">Сентябрь — Ноябрь 2026</dd>
-            </div>
-        </dl>
-    </div>
+<main class="max-w-[1100px] mx-auto px-4 sm:px-6 py-7 space-y-8">
 
-    <div class="bg-white rounded-xl shadow p-6 space-y-3">
-        <h2 class="text-lg font-semibold border-b pb-2">Опыт работы со стеком и архитектура решения</h2>
-        <p class="text-sm text-slate-700 leading-relaxed">
-            В рамках курсового проекта реализовано веб-приложение на базе <strong>Spring Boot</strong> и
-            <strong>Spring Security</strong> с разграничением прав по ролям (<code>OWNER</code>, <code>STEWARD</code>,
-            <code>AUDITOR</code>, <code>ADMIN</code>). Реляционные данные наборов, правил хранения и истории метрик
-            хранятся в <strong>PostgreSQL</strong> (Spring Data JPA), а журнал аудита и резервные копии с контрольной
-            суммой SHA-256 — в <strong>MongoDB</strong> (Spring Data MongoDB). Пользовательский интерфейс построен на
-            <strong>Thymeleaf</strong>, <strong>Tailwind CSS</strong> и <strong>Chart.js</strong>.
-        </p>
-    </div>
+    <!-- Сведения об авторе -->
+    <section class="bg-white border border-slate-300 rounded-md shadow-xs overflow-hidden">
+        <div class="px-5 py-3.5 bg-slate-50 border-b border-slate-300 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-teal-700"></span>
+                <h1 class="text-sm font-semibold text-slate-900">Сведения об авторе и курсовом проекте</h1>
+            </div>
+            <span class="text-[10px] font-mono-num px-2 py-0.5 rounded bg-white border border-slate-300 text-slate-600">METADATA</span>
+        </div>
+
+        <div class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            <div class="border border-slate-200 bg-slate-50/50 rounded p-3.5">
+                <div class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">ФИО студента</div>
+                <div class="font-semibold text-sm text-slate-900 mt-1">Попов Иван Андреевич</div>
+            </div>
+            <div class="border border-slate-200 bg-slate-50/50 rounded p-3.5">
+                <div class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Учебное заведение / группа</div>
+                <div class="font-semibold text-sm text-slate-900 mt-1">Финансовый университет · ИД23-2</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Архитектура и технологический стек -->
+    <section class="bg-white border border-slate-300 rounded-md shadow-xs overflow-hidden">
+        <div class="px-5 py-3.5 bg-slate-50 border-b border-slate-300 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-slate-800"></span>
+                <h2 class="text-sm font-semibold text-slate-900">Архитектура решения и стек технологий</h2>
+            </div>
+            <span class="text-[10px] font-mono-num px-2 py-0.5 rounded bg-white border border-slate-300 text-slate-600">ARCHITECTURE</span>
+        </div>
+
+        <div class="p-5 space-y-4 text-xs text-slate-700 leading-relaxed">
+            <p>
+                В рамках курсового проекта реализован веб-сервис управления жизненным циклом и экологичностью данных
+                страховой компании на базе <strong class="text-slate-900">Spring Boot</strong> и
+                <strong class="text-slate-900">Spring Security</strong> с разграничением прав по ролям
+                (<code class="font-mono-num bg-slate-100 border border-slate-200 px-1 py-0.5 rounded">OWNER</code>,
+                <code class="font-mono-num bg-slate-100 border border-slate-200 px-1 py-0.5 rounded">STEWARD</code>,
+                <code class="font-mono-num bg-slate-100 border border-slate-200 px-1 py-0.5 rounded">AUDITOR</code>,
+                <code class="font-mono-num bg-slate-100 border border-slate-200 px-1 py-0.5 rounded">ADMIN</code>).
+            </p>
+            <p>
+                Реляционное хранилище <strong class="text-slate-900">PostgreSQL</strong> (Spring Data JPA) содержит каталоги
+                наборов данных, правила хранения (<code class="font-mono-num">retention_rules</code>) и историю расчётов
+                метрик ($V, D, S, Q$) и интегрального индекса $I$. Документоориентированное хранилище
+                <strong class="text-slate-900">MongoDB</strong> (Spring Data MongoDB) используется для неизменяемого журнала
+                аудита и резервных копий (<code class="font-mono-num">FULL</code> / <code class="font-mono-num">INCREMENTAL</code>)
+                с контрольной суммой <code class="font-mono-num">SHA-256</code>. Пользовательский интерфейс выполнен на
+                <strong class="text-slate-900">Thymeleaf</strong>, <strong class="text-slate-900">Tailwind CSS</strong> и
+                <strong class="text-slate-900">Chart.js</strong>.
+            </p>
+        </div>
+    </section>
+
 </main>
 </body>
 </html>

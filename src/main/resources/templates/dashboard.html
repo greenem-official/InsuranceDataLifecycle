@@ -2,394 +2,619 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Экология данных — Страховая компания</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Экология данных — Корпоративный контур управления данными</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+        .font-mono-num { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+        .tabular-nums { font-variant-numeric: tabular-nums; }
+    </style>
 </head>
-<body class="bg-slate-100 text-slate-800">
+<body class="bg-[#EAEEF3] text-slate-900 antialiased selection:bg-slate-900 selection:text-white">
 
-<header class="bg-slate-900 text-white px-6 py-4 flex flex-wrap justify-between items-center gap-3">
-    <div>
-        <h1 class="text-xl font-bold">Система управления жизненным циклом данных</h1>
-        <p class="text-xs text-slate-300">Страховая компания · Мониторинг экологичности хранилищ</p>
-    </div>
-    <div class="flex items-center gap-3">
-        <a th:href="@{/reports/ecology.csv}"
-           class="bg-emerald-600 hover:bg-emerald-700 px-3 py-1 rounded text-sm">
-            Скачать отчёт (CSV)
-        </a>
-        <span class="text-sm">
-            <strong th:text="${user.fullName}">Пользователь</strong>
-            (<span class="px-2 py-0.5 bg-emerald-600 rounded text-xs" th:text="${user.role}">ROLE</span>)
-        </span>
-        <form th:action="@{/logout}" method="post">
-            <button class="bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded text-sm">Выйти</button>
-        </form>
+<!-- Единая верхняя навигационная панель -->
+<header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-[1380px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3 min-w-0">
+            <div class="w-7 h-7 rounded bg-teal-500/20 border border-teal-400/40 text-teal-300 flex items-center justify-center text-xs font-semibold tracking-tight shrink-0">
+                DE
+            </div>
+            <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                    <span class="font-semibold text-sm text-white truncate">Data Ecology &amp; Lifecycle</span>
+                    <span class="hidden sm:inline-block text-[10px] font-mono-num px-1.5 py-0.5 rounded border border-slate-700 bg-slate-800 text-slate-300">
+                        INSURANCE CORE
+                    </span>
+                </div>
+            </div>
+            <nav class="hidden md:flex items-center gap-1 ml-6 text-xs font-medium">
+                <a th:href="@{/}" class="px-3 py-1.5 rounded bg-slate-800 text-white border border-slate-700">Рабочий стол</a>
+                <a th:href="@{/about}" class="px-3 py-1.5 rounded text-slate-300 hover:text-white hover:bg-slate-800/70 transition">О проекте и авторе</a>
+            </nav>
+        </div>
+
+        <div class="flex items-center gap-3 text-xs">
+            <a th:href="@{/reports/ecology.csv}"
+               class="inline-flex items-center gap-1.5 bg-teal-600 hover:bg-teal-500 text-white font-medium px-3 py-1.5 rounded transition shadow-xs">
+                <span>Экспорт CSV</span>
+            </a>
+
+            <div class="hidden sm:flex items-center gap-2 pl-3 border-l border-slate-700">
+                <span class="font-medium text-slate-100" th:text="${user.fullName}">Пользователь</span>
+                <span class="font-mono-num text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-800 border border-slate-600 text-teal-300"
+                      th:text="${user.role}">ROLE</span>
+            </div>
+
+            <form th:action="@{/logout}" method="post">
+                <button type="submit"
+                        class="text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-700 px-2.5 py-1.5 rounded font-medium transition">
+                    Выйти
+                </button>
+            </form>
+        </div>
     </div>
 </header>
 
-<main class="max-w-7xl mx-auto p-6 space-y-6">
+<main class="max-w-[1380px] mx-auto px-4 sm:px-6 py-7 space-y-8">
 
-    <!-- Уведомления об операциях (бэкапы, восстановление, ошибки) -->
-    <div th:if="${statusMessage != null}" class="bg-emerald-50 border border-emerald-300 text-emerald-800 px-4 py-3 rounded-xl text-sm">
-        <span th:text="${statusMessage}"></span>
+    <!-- Системные уведомления -->
+    <div th:if="${statusMessage != null}"
+         class="flex items-center justify-between gap-3 bg-white border border-slate-300 border-l-4 border-l-teal-700 px-4 py-3 rounded-md shadow-xs text-xs text-slate-800">
+        <div class="flex items-center gap-2.5">
+            <span class="font-mono-num uppercase text-[10px] font-semibold px-1.5 py-0.5 rounded bg-teal-50 text-teal-800 border border-teal-300">OK</span>
+            <span class="font-medium" th:text="${statusMessage}">Операция выполнена</span>
+        </div>
     </div>
-    <div th:if="${errorMessage != null}" class="bg-rose-50 border border-rose-300 text-rose-800 px-4 py-3 rounded-xl text-sm">
-        <span th:text="${errorMessage}"></span>
+    <div th:if="${errorMessage != null}"
+         class="flex items-center justify-between gap-3 bg-white border border-slate-300 border-l-4 border-l-rose-700 px-4 py-3 rounded-md shadow-xs text-xs text-slate-800">
+        <div class="flex items-center gap-2.5">
+            <span class="font-mono-num uppercase text-[10px] font-semibold px-1.5 py-0.5 rounded bg-rose-50 text-rose-800 border border-rose-300">ERR</span>
+            <span class="font-medium" th:text="${errorMessage}">Ошибка выполнения</span>
+        </div>
     </div>
 
-    <!-- Панель резервного копирования и восстановления (ADMIN) -->
-    <div th:if="${user.role.name() == 'ADMIN'}" class="bg-white rounded-xl shadow p-5 space-y-3 overflow-x-auto">
-        <div class="flex flex-wrap justify-between items-center gap-2">
-            <h2 class="text-lg font-semibold">Резервное копирование и восстановление (MongoDB)</h2>
-            <div class="flex gap-2">
-                <form th:action="@{/admin/backup}" method="post">
-                    <input type="hidden" name="type" value="FULL">
-                    <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded text-xs">
-                        Создать FULL Backup
-                    </button>
-                </form>
-                <form th:action="@{/admin/backup}" method="post">
-                    <input type="hidden" name="type" value="INCREMENTAL">
-                    <button class="bg-sky-600 hover:bg-sky-700 text-white px-3 py-1.5 rounded text-xs">
-                        Создать INCREMENTAL Backup
-                    </button>
-                </form>
+    <!-- Сводная полоса показателей стоимости, энергии и объёма -->
+    <section th:if="${costReport != null}" class="bg-white border border-slate-300 rounded-md shadow-xs overflow-hidden">
+        <div class="px-5 py-3.5 bg-slate-50 border-b border-slate-300 flex flex-wrap items-center justify-between gap-2">
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-slate-800"></span>
+                    <h1 class="text-sm font-semibold text-slate-900">Ресурсный и финансовый профиль хранилища</h1>
+                </div>
+                <p class="text-xs text-slate-500 mt-0.5 pl-4">Расчёт по текущей выборке наборов данных страхового портфеля</p>
+            </div>
+            <div class="text-xs text-slate-700 font-mono-num bg-white border border-slate-300 px-3 py-1.5 rounded">
+                Объём: <strong class="text-slate-900" th:text="${costReport.totalSizeGb}">0.0</strong> ГБ
+                <span class="mx-2 text-slate-300">|</span>
+                К оптимизации: <strong class="text-amber-800" th:text="${costReport.wastedSizeGb}">0.0</strong> ГБ
             </div>
         </div>
 
-        <p th:if="${backups == null or #lists.isEmpty(backups)}" class="text-sm text-slate-500">
-            Резервных копий пока нет. Создайте FULL или INCREMENTAL копию.
-        </p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-200">
+            <div class="p-5">
+                <div class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Затраты на хранение</div>
+                <div class="mt-2 flex items-baseline gap-2">
+                    <span class="text-2xl font-bold text-slate-900 tabular-nums" th:text="${costReport.monthlyCostRub} + ' ₽'">0.00 ₽</span>
+                    <span class="text-xs text-slate-500">/ мес.</span>
+                </div>
+                <div class="mt-1.5 text-xs text-slate-500 tabular-nums">
+                    Годовой прогноз: <span class="font-semibold text-slate-700" th:text="${costReport.annualCostRub} + ' ₽'">0.00 ₽</span>
+                </div>
+            </div>
 
-        <table th:if="${backups != null and !#lists.isEmpty(backups)}" class="w-full text-xs text-left border-collapse">
-            <thead>
-            <tr class="border-b bg-slate-50">
-                <th class="p-2">Дата</th>
-                <th class="p-2">Тип</th>
-                <th class="p-2">Объектов</th>
-                <th class="p-2">Размер (Б)</th>
-                <th class="p-2">SHA-256</th>
-                <th class="p-2">Действия</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="b : ${backups}" class="border-b hover:bg-slate-50">
-                <td class="p-2" th:text="${b.createdAt}">2026-11-25</td>
-                <td class="p-2 font-semibold" th:text="${b.type}">FULL</td>
-                <td class="p-2" th:text="${b.itemCount}">3</td>
-                <td class="p-2" th:text="${b.sizeBytes}">512</td>
-                <td class="p-2 font-mono" th:text="${b.checksum != null ? #strings.abbreviate(b.checksum, 18) : '—'}">sha256</td>
-                <td class="p-2 flex gap-2">
-                    <form th:action="@{'/admin/backup/' + ${b.id} + '/verify'}" method="post">
-                        <button class="bg-slate-700 hover:bg-slate-600 text-white px-2.5 py-1 rounded">Проверить SHA-256</button>
-                    </form>
-                    <form th:action="@{'/admin/backup/' + ${b.id} + '/restore'}" method="post">
-                        <button class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded">Восстановить</button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
+            <div class="p-5 bg-teal-50/30">
+                <div class="text-[11px] uppercase tracking-wider text-teal-900 font-semibold">Потенциал сокращения затрат</div>
+                <div class="mt-2 flex items-baseline gap-2">
+                    <span class="text-2xl font-bold text-teal-800 tabular-nums" th:text="${costReport.potentialMonthlySavingsRub} + ' ₽'">0.00 ₽</span>
+                    <span class="text-xs text-teal-700">/ мес.</span>
+                </div>
+                <div class="mt-1.5 text-xs text-slate-600 tabular-nums">
+                    При очистке/архивации: <span class="font-semibold text-teal-800" th:text="${costReport.potentialAnnualSavingsRub} + ' ₽/год'">0.00 ₽/год</span>
+                </div>
+            </div>
+
+            <div class="p-5">
+                <div class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Энергопотребление ЦОД</div>
+                <div class="mt-2 flex items-baseline gap-2">
+                    <span class="text-2xl font-bold text-slate-900 tabular-nums" th:text="${costReport.monthlyEnergyKwh}">0.0000</span>
+                    <span class="text-xs text-slate-500">кВт·ч / мес.</span>
+                </div>
+                <div class="mt-1.5 text-xs text-slate-500 tabular-nums">
+                    За 12 мес.: <span class="font-semibold text-slate-700" th:text="${costReport.annualEnergyKwh} + ' кВт·ч'">0.0000 кВт·ч</span>
+                </div>
+            </div>
+
+            <div class="p-5 bg-slate-50/50">
+                <div class="text-[11px] uppercase tracking-wider text-slate-600 font-semibold">Резерв снижения энергии</div>
+                <div class="mt-2 flex items-baseline gap-2">
+                    <span class="text-2xl font-bold text-slate-900 tabular-nums" th:text="${costReport.potentialMonthlyEnergySavingsKwh}">0.0000</span>
+                    <span class="text-xs text-slate-500">кВт·ч / мес.</span>
+                </div>
+                <div class="mt-1.5 text-xs text-slate-500 tabular-nums">
+                    За 12 мес.: <span class="font-semibold text-slate-700" th:text="${costReport.potentialAnnualEnergySavingsKwh} + ' кВт·ч'">0.0000 кВт·ч</span>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <!-- Карточка последнего расчёта метрик и рекомендаций -->
-    <div th:if="${lastReport != null}" class="bg-white rounded-xl shadow p-5 border-l-4 border-emerald-500">
-        <div class="flex justify-between items-center mb-3">
-            <h2 class="text-lg font-semibold">
-                Отчёт по набору: <span th:text="${lastReport.datasetName}"></span>
-            </h2>
-            <span class="text-2xl font-bold text-emerald-600">
-                Индекс I = <span th:text="${lastReport.integralIndex}">0.0</span>
-            </span>
+    <section th:if="${lastReport != null}" class="bg-white border border-slate-300 border-l-4 border-l-teal-700 rounded-md shadow-xs p-5">
+        <div class="flex flex-wrap items-start justify-between gap-4 pb-4 border-b border-slate-200">
+            <div>
+                <div class="text-[11px] uppercase tracking-wider text-teal-800 font-semibold">Результат оценки экологичности</div>
+                <h2 class="text-base font-bold text-slate-900 mt-0.5" th:text="${lastReport.datasetName}">Набор данных</h2>
+            </div>
+            <div class="text-right bg-slate-50 border border-slate-300 px-3.5 py-2 rounded">
+                <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Интегральный индекс I</div>
+                <div class="text-2xl font-bold font-mono-num text-slate-900" th:text="${lastReport.integralIndex}">0.0000</div>
+            </div>
         </div>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
-            <div class="bg-slate-50 p-3 rounded">Объём (V): <strong th:text="${lastReport.volumeMetric}"></strong></div>
-            <div class="bg-slate-50 p-3 rounded">Дубликаты (D): <strong th:text="${lastReport.duplicatesMetric}"></strong></div>
-            <div class="bg-slate-50 p-3 rounded">Тёмные данные (S): <strong th:text="${lastReport.staleMetric}"></strong></div>
-            <div class="bg-slate-50 p-3 rounded">Дефекты качества (Q): <strong th:text="${lastReport.qualityMetric}"></strong></div>
-        </div>
-        <div th:if="${!#lists.isEmpty(lastReport.recommendations)}">
-            <h3 class="font-medium text-sm mb-2">Практические рекомендации:</h3>
-            <ul class="list-disc pl-5 text-sm space-y-1">
-                <li th:each="rec : ${lastReport.recommendations}">
-                    <span th:text="${rec.description}"></span>
-                    (прогноз индекса: <strong th:text="${rec.projectedIndex}"></strong>)
-                </li>
-            </ul>
-        </div>
-    </div>
 
-    <!-- Форма добавления набора данных (доступна OWNER и STEWARD) -->
-    <div th:if="${user.role.name() == 'OWNER' or user.role.name() == 'STEWARD'}"
-         class="bg-white rounded-xl shadow p-5">
-        <h2 class="text-lg font-semibold mb-3">Загрузить / зарегистрировать набор данных</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 py-4 border-b border-slate-200 text-xs">
+            <div class="border border-slate-300 rounded px-3.5 py-2.5 bg-slate-50">
+                <div class="text-slate-500 font-medium">Метрика объёма (V)</div>
+                <div class="font-mono-num text-base font-bold text-slate-900 mt-0.5" th:text="${lastReport.volumeMetric}">0.0</div>
+            </div>
+            <div class="border border-slate-300 rounded px-3.5 py-2.5 bg-slate-50">
+                <div class="text-slate-500 font-medium">Дублирование (D)</div>
+                <div class="font-mono-num text-base font-bold text-slate-900 mt-0.5" th:text="${lastReport.duplicatesMetric}">0.0</div>
+            </div>
+            <div class="border border-slate-300 rounded px-3.5 py-2.5 bg-slate-50">
+                <div class="text-slate-500 font-medium">Неактуальность (S)</div>
+                <div class="font-mono-num text-base font-bold text-slate-900 mt-0.5" th:text="${lastReport.staleMetric}">0.0</div>
+            </div>
+            <div class="border border-slate-300 rounded px-3.5 py-2.5 bg-slate-50">
+                <div class="text-slate-500 font-medium">Дефекты качества (Q)</div>
+                <div class="font-mono-num text-base font-bold text-slate-900 mt-0.5" th:text="${lastReport.qualityMetric}">0.0</div>
+            </div>
+        </div>
+
+        <div th:if="${!#lists.isEmpty(lastReport.recommendations)}" class="pt-4">
+            <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2.5">Рекомендуемые меры оптимизации</h3>
+            <div class="divide-y divide-slate-200 border border-slate-300 rounded text-xs overflow-hidden">
+                <div th:each="rec : ${lastReport.recommendations}" class="px-3.5 py-2.5 flex flex-wrap items-center justify-between gap-2 bg-white hover:bg-slate-50">
+                    <span class="text-slate-800 font-medium" th:text="${rec.description}">Описание рекомендации</span>
+                    <span class="font-mono-num text-slate-700 bg-teal-50 border border-teal-300 px-2.5 py-0.5 rounded">
+                        Прогноз I: <strong class="text-teal-900" th:text="${rec.projectedIndex}">0.90</strong>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Регистрация / загрузка CSV-набора (OWNER и STEWARD) -->
+    <section th:if="${user.role.name() == 'OWNER' or user.role.name() == 'STEWARD'}"
+             class="bg-white border border-slate-300 rounded-md shadow-xs overflow-hidden">
+        <div class="px-5 py-3.5 bg-slate-50 border-b border-slate-300 flex flex-wrap items-center justify-between gap-2">
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-teal-700"></span>
+                    <h2 class="text-sm font-semibold text-slate-900">Инвентаризация и загрузка набора данных</h2>
+                </div>
+                <p class="text-xs text-slate-500 mt-0.5 pl-4">Автоматический расчёт объёма, MD5, дубликатов и пропусков из CSV либо ручная регистрация</p>
+            </div>
+            <span class="text-[11px] font-mono-num px-2 py-0.5 rounded bg-white border border-slate-300 text-slate-600">CSV · UTF-8</span>
+        </div>
+
         <form th:action="@{/datasets/create}" method="post" enctype="multipart/form-data"
-              class="grid grid-cols-1 md:grid-cols-6 gap-3 text-sm">
-            <input type="text" name="name" placeholder="Название (напр. КАСКО Q3)" required class="border rounded px-3 py-2">
-            <input type="text" name="category" list="insuranceCategories"
-                   placeholder="Категория (Полисы КАСКО / Убытки)" class="border rounded px-3 py-2">
-            <datalist id="insuranceCategories">
-                <option value="Полисы КАСКО">
-                <option value="Полисы ОСАГО">
-                <option value="Убытки">
-                <option value="Клиентская база">
-                <option value="Перестрахование">
-            </datalist>
-            <input type="number" step="0.0001" name="sizeMb" placeholder="Размер (МБ)" class="border rounded px-3 py-2">
-            <input type="number" name="recordCount" placeholder="Кол-во записей" class="border rounded px-3 py-2">
-            <input type="text" name="checksumMd5" placeholder="MD5 (или из CSV)" maxlength="32" class="border rounded px-3 py-2">
-            <input type="number" name="daysSinceLastAccess" placeholder="Дней без доступа" value="0" class="border rounded px-3 py-2">
+              class="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3.5 text-xs">
+            <div>
+                <label class="block text-slate-700 font-medium mb-1">Наименование *</label>
+                <input type="text" name="name" placeholder="Напр. Полисы КАСКО 2025" required
+                       class="w-full border border-slate-300 rounded px-2.5 py-1.5 bg-white focus:outline-none focus:border-slate-800">
+            </div>
 
-            <input type="file" name="file" accept=".csv,text/csv"
-                   class="md:col-span-6 border rounded px-3 py-2 bg-white">
+            <div>
+                <label class="block text-slate-700 font-medium mb-1">Категория</label>
+                <input type="text" name="category" list="insuranceCategories" placeholder="Полисы КАСКО"
+                       class="w-full border border-slate-300 rounded px-2.5 py-1.5 bg-white focus:outline-none focus:border-slate-800">
+                <datalist id="insuranceCategories">
+                    <option value="Полисы КАСКО">
+                    <option value="Полисы ОСАГО">
+                    <option value="Убытки">
+                    <option value="Клиентская база">
+                    <option value="Перестрахование">
+                </datalist>
+            </div>
 
-            <button type="submit"
-                    class="md:col-span-6 bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 rounded">
-                Сохранить и рассчитать экологичность
-            </button>
+            <div>
+                <label class="block text-slate-700 font-medium mb-1">Размер (МБ)</label>
+                <input type="number" step="0.0001" name="sizeMb" placeholder="Авто из CSV"
+                       class="w-full border border-slate-300 rounded px-2.5 py-1.5 bg-white tabular-nums focus:outline-none focus:border-slate-800">
+            </div>
+
+            <div>
+                <label class="block text-slate-700 font-medium mb-1">Кол-во записей</label>
+                <input type="number" name="recordCount" placeholder="Авто из CSV"
+                       class="w-full border border-slate-300 rounded px-2.5 py-1.5 bg-white tabular-nums focus:outline-none focus:border-slate-800">
+            </div>
+
+            <div>
+                <label class="block text-slate-700 font-medium mb-1">MD5 (опционально)</label>
+                <input type="text" name="checksumMd5" placeholder="Авто из файла" maxlength="32"
+                       class="w-full border border-slate-300 rounded px-2.5 py-1.5 bg-white font-mono-num focus:outline-none focus:border-slate-800">
+            </div>
+
+            <div>
+                <label class="block text-slate-700 font-medium mb-1">Дней без доступа</label>
+                <input type="number" name="daysSinceLastAccess" value="0" min="0"
+                       class="w-full border border-slate-300 rounded px-2.5 py-1.5 bg-white tabular-nums focus:outline-none focus:border-slate-800">
+            </div>
+
+            <div class="sm:col-span-2 lg:col-span-4">
+                <label class="block text-slate-700 font-medium mb-1">Файл выгрузки (.csv)</label>
+                <input type="file" name="file" accept=".csv,text/csv"
+                       class="w-full border border-slate-300 rounded px-2.5 py-1 bg-slate-50 text-slate-700 file:mr-3 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-xs file:font-medium file:bg-slate-800 file:text-white hover:file:bg-slate-700">
+            </div>
+
+            <div class="sm:col-span-2 lg:col-span-2 flex items-end">
+                <button type="submit"
+                        class="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-2 px-4 rounded transition">
+                    Зарегистрировать и оценить
+                </button>
+            </div>
         </form>
-    </div>
+    </section>
 
-    <!-- Блок правил хранения (доступен STEWARD и ADMIN) -->
-    <div th:if="${user.role.name() == 'STEWARD' or user.role.name() == 'ADMIN'}"
-         class="bg-white rounded-xl shadow p-5 space-y-3">
-        <h2 class="text-lg font-semibold">Правила хранения данных (Retention Rules)</h2>
-        <form th:action="@{/retention-rules}" method="post" class="grid grid-cols-1 md:grid-cols-4 gap-3 text-sm">
-            <input type="text" name="category" list="insuranceCategories"
-                   placeholder="Категория (напр. Полисы КАСКО)" required class="border rounded px-3 py-2">
-            <input type="number" name="daysToKeep" placeholder="Срок хранения (дней)" min="1" required class="border rounded px-3 py-2">
-            <select name="action" class="border rounded px-3 py-2 bg-white">
-                <option value="ARCHIVE">ARCHIVE (в архив)</option>
-                <option value="DELETE">DELETE (на удаление)</option>
-            </select>
-            <button type="submit" class="bg-slate-800 hover:bg-slate-700 text-white rounded px-4 py-2">
-                Сохранить правило
-            </button>
-        </form>
-        <ul th:if="${retentionRules != null and !#lists.isEmpty(retentionRules)}" class="text-sm divide-y">
-            <li th:each="rule : ${retentionRules}" class="py-2 flex justify-between items-center">
-                <span><strong th:text="${rule.category}">Полисы</strong> — <span th:text="${rule.daysToKeep}">1825</span> дн.</span>
-                <span class="font-mono text-xs bg-slate-100 px-2 py-0.5 rounded" th:text="${rule.action}">ARCHIVE</span>
-            </li>
-        </ul>
-    </div>
-
-    <!-- Расчёт стоимости хранения и энергопотребления -->
-    <div th:if="${costReport != null}" class="bg-white rounded-xl shadow p-5 space-y-3">
-        <div class="flex flex-wrap justify-between items-center gap-2">
-            <h2 class="text-lg font-semibold">Стоимость хранения и энергопотребление</h2>
-            <span class="text-xs text-slate-500">
-                Объём в выборке: <strong th:text="${costReport.totalSizeGb}">0.0</strong> ГБ
-                (потенциал оптимизации: <strong class="text-amber-700" th:text="${costReport.wastedSizeGb}">0.0</strong> ГБ)
-            </span>
+    <!-- Основной реестр наборов данных -->
+    <section class="bg-white border border-slate-300 rounded-md shadow-xs overflow-hidden">
+        <div class="px-5 py-3.5 bg-slate-50 border-b border-slate-300 flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-slate-800"></span>
+                    <h2 class="text-sm font-semibold text-slate-900">Реестр информационных массивов</h2>
+                </div>
+                <p class="text-xs text-slate-500 mt-0.5 pl-4">Контроль состояния, индекса экологичности и согласование жизненного цикла</p>
+            </div>
+            <div class="text-xs text-slate-700 font-mono-num bg-white border border-slate-300 px-3 py-1 rounded tabular-nums">
+                Записей в реестре: <strong class="text-slate-900" th:text="${datasets != null ? #lists.size(datasets) : 0}">0</strong>
+            </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
-            <div class="bg-slate-50 p-3.5 rounded-lg">
-                <div class="text-xs text-slate-500">Стоимость / мес. (год)</div>
-                <div class="text-lg font-bold text-slate-800 mt-0.5">
-                    <span th:text="${costReport.monthlyCostRub}">0.00</span> ₽
-                    <span class="text-xs font-normal text-slate-500">
-                        (<span th:text="${costReport.annualCostRub}">0.00</span> ₽/год)
-                    </span>
-                </div>
-            </div>
-
-            <div class="bg-emerald-50 p-3.5 rounded-lg">
-                <div class="text-xs text-emerald-700">Потенциальная экономия</div>
-                <div class="text-lg font-bold text-emerald-700 mt-0.5">
-                    <span th:text="${costReport.potentialMonthlySavingsRub}">0.00</span> ₽/мес
-                    <span class="text-xs font-normal">
-                        (<span th:text="${costReport.potentialAnnualSavingsRub}">0.00</span> ₽/год)
-                    </span>
-                </div>
-            </div>
-
-            <div class="bg-slate-50 p-3.5 rounded-lg">
-                <div class="text-xs text-slate-500">Энергопотребление / мес. (год)</div>
-                <div class="text-lg font-bold text-slate-800 mt-0.5">
-                    <span th:text="${costReport.monthlyEnergyKwh}">0.0000</span> кВт·ч
-                    <span class="text-xs font-normal text-slate-500">
-                        (<span th:text="${costReport.annualEnergyKwh}">0.0000</span> кВт·ч/год)
-                    </span>
-                </div>
-            </div>
-
-            <div class="bg-sky-50 p-3.5 rounded-lg">
-                <div class="text-xs text-sky-700">Экономия энергии (кВт·ч)</div>
-                <div class="text-lg font-bold text-sky-700 mt-0.5">
-                    <span th:text="${costReport.potentialMonthlyEnergySavingsKwh}">0.0000</span> кВт·ч/мес
-                    <span class="text-xs font-normal">
-                        (<span th:text="${costReport.potentialAnnualEnergySavingsKwh}">0.0000</span> кВт·ч/год)
-                    </span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Таблица наборов данных с поиском, сортировкой и цепочкой согласования -->
-    <div class="bg-white rounded-xl shadow p-5 overflow-x-auto">
-        <h2 class="text-lg font-semibold mb-3">Каталог наборов данных</h2>
-
-        <form th:action="@{/}" method="get" class="grid grid-cols-1 md:grid-cols-5 gap-3 mb-4 text-sm">
-            <input type="text" name="q" th:value="${q}" placeholder="Поиск по названию или категории..."
-                   class="border rounded px-3 py-2">
-            <input type="text" name="category" th:value="${category}" placeholder="Фильтр категории (напр. Полисы)"
-                   class="border rounded px-3 py-2">
-            <select name="sortBy" class="border rounded px-3 py-2 bg-white">
-                <option value="id" th:selected="${sortBy == 'id'}">Сортировка: по ID</option>
-                <option value="name" th:selected="${sortBy == 'name'}">По алфавиту (название)</option>
-                <option value="size" th:selected="${sortBy == 'size'}">По объёму (МБ)</option>
-                <option value="records" th:selected="${sortBy == 'records'}">По числу записей</option>
-                <option value="lastAccess" th:selected="${sortBy == 'lastAccess'}">По дате обращения</option>
-                <option value="index" th:selected="${sortBy == 'index'}">По индексу экологичности (I)</option>
+        <!-- Панель фильтрации и сортировки -->
+        <form th:action="@{/}" method="get"
+              class="px-5 py-3.5 bg-slate-100/80 border-b border-slate-300 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-2.5 text-xs">
+            <input type="text" name="q" th:value="${q}" placeholder="Поиск по наименованию..."
+                   class="lg:col-span-2 border border-slate-300 bg-white rounded px-2.5 py-1.5 focus:outline-none focus:border-slate-800">
+            <input type="text" name="category" th:value="${category}" placeholder="Категория (напр. Полисы)"
+                   class="border border-slate-300 bg-white rounded px-2.5 py-1.5 focus:outline-none focus:border-slate-800">
+            <select name="sortBy" class="border border-slate-300 bg-white rounded px-2.5 py-1.5 focus:outline-none focus:border-slate-800">
+                <option value="id" th:selected="${sortBy == 'id'}">Сортировка: ID</option>
+                <option value="name" th:selected="${sortBy == 'name'}">Наименование</option>
+                <option value="size" th:selected="${sortBy == 'size'}">Объём (МБ)</option>
+                <option value="records" th:selected="${sortBy == 'records'}">Число записей</option>
+                <option value="lastAccess" th:selected="${sortBy == 'lastAccess'}">Дата доступа</option>
+                <option value="index" th:selected="${sortBy == 'index'}">Индекс I</option>
             </select>
-            <select name="dir" class="border rounded px-3 py-2 bg-white">
+            <select name="dir" class="border border-slate-300 bg-white rounded px-2.5 py-1.5 focus:outline-none focus:border-slate-800">
                 <option value="desc" th:selected="${dir == 'desc'}">По убыванию</option>
                 <option value="asc" th:selected="${dir == 'asc'}">По возрастанию</option>
             </select>
             <div class="flex gap-2">
-                <button type="submit" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded w-full">
+                <button type="submit" class="flex-1 bg-slate-900 hover:bg-slate-800 text-white font-medium px-3 py-1.5 rounded transition">
                     Применить
                 </button>
-                <a th:href="@{/}" class="border px-3 py-2 rounded flex items-center hover:bg-slate-50">Сброс</a>
+                <a th:href="@{/}" class="border border-slate-300 bg-white hover:bg-slate-200/70 text-slate-700 px-2.5 py-1.5 rounded flex items-center">
+                    Сброс
+                </a>
             </div>
         </form>
 
-        <table class="w-full text-sm text-left border-collapse">
-            <thead>
-            <tr class="border-b bg-slate-50">
-                <th class="p-2">ID</th>
-                <th class="p-2">Название</th>
-                <th class="p-2">Категория</th>
-                <th class="p-2">Размер (МБ)</th>
-                <th class="p-2">Записей</th>
-                <th class="p-2">MD5</th>
-                <th class="p-2">Индекс I</th>
-                <th class="p-2">Статус</th>
-                <th class="p-2">Владелец</th>
-                <th class="p-2">Действия</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="ds : ${datasets}" class="border-b hover:bg-slate-50">
-                <td class="p-2" th:text="${ds.id}">1</td>
-                <td class="p-2 font-medium" th:text="${ds.name}">Полисы</td>
-                <td class="p-2" th:text="${ds.category}">Полисы</td>
-                <td class="p-2" th:text="${ds.sizeMb}">120</td>
-                <td class="p-2" th:text="${ds.recordCount}">1000</td>
-                <td class="p-2 font-mono text-xs" th:text="${ds.checksumMd5}">hash</td>
-                <td class="p-2 font-semibold text-emerald-700"
-                    th:text="${latestIndexByDataset != null and latestIndexByDataset[ds.id] != null ? #numbers.formatDecimal(latestIndexByDataset[ds.id], 1, 4) : '—'}">
-                    0.8500
-                </td>
-                <td class="p-2 text-xs font-semibold space-y-1">
-                    <span class="px-2 py-0.5 rounded bg-slate-100 inline-block" th:text="${ds.status}">ACTIVE</span>
-                    <span th:if="${expiredDatasetIds != null and expiredDatasetIds.contains(ds.id)}"
-                          class="px-2 py-0.5 rounded bg-rose-100 text-rose-700 inline-block">
-                        Просрочен по правилу
-                    </span>
-                </td>
-                <td class="p-2" th:text="${ds.owner != null ? ds.owner.fullName : '—'}">Иван</td>
-                <td class="p-2 flex flex-wrap gap-1.5">
-                    <!-- Пересчёт метрик (доступен всем кроме AUDITOR) -->
-                    <form th:if="${user.role.name() != 'AUDITOR'}"
-                          th:action="@{'/datasets/' + ${ds.id} + '/evaluate'}" method="post">
-                        <button class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded text-xs">Оценить</button>
-                    </form>
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left border-collapse">
+                <thead>
+                <tr class="border-b border-slate-300 bg-slate-100/60 text-[11px] uppercase tracking-wider text-slate-600">
+                    <th class="py-3 px-3.5 font-semibold">ID</th>
+                    <th class="py-3 px-3.5 font-semibold">Наименование</th>
+                    <th class="py-3 px-3.5 font-semibold">Категория</th>
+                    <th class="py-3 px-3.5 font-semibold text-right">Размер, МБ</th>
+                    <th class="py-3 px-3.5 font-semibold text-right">Записей</th>
+                    <th class="py-3 px-3.5 font-semibold">Контрольная сумма MD5</th>
+                    <th class="py-3 px-3.5 font-semibold text-right">Индекс I</th>
+                    <th class="py-3 px-3.5 font-semibold">Статус</th>
+                    <th class="py-3 px-3.5 font-semibold">Владелец</th>
+                    <th class="py-3 px-3.5 font-semibold text-right">Операции</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200">
+                <tr th:each="ds : ${datasets}" class="odd:bg-white even:bg-slate-50/40 hover:bg-slate-100/70 transition-colors">
+                    <td class="py-3 px-3.5 font-mono-num text-slate-500" th:text="${ds.id}">1</td>
+                    <td class="py-3 px-3.5 font-semibold text-slate-900" th:text="${ds.name}">Полисы</td>
+                    <td class="py-3 px-3.5 text-slate-700" th:text="${ds.category}">Полисы</td>
+                    <td class="py-3 px-3.5 font-mono-num text-right text-slate-800" th:text="${ds.sizeMb}">120.00</td>
+                    <td class="py-3 px-3.5 font-mono-num text-right text-slate-800" th:text="${ds.recordCount}">1000</td>
+                    <td class="py-3 px-3.5 font-mono-num text-[11px] text-slate-500"
+                        th:title="${ds.checksumMd5}"
+                        th:text="${ds.checksumMd5 != null ? #strings.abbreviate(ds.checksumMd5, 16) : '—'}">hash</td>
+                    <td class="py-3 px-3.5 font-mono-num text-right font-bold"
+                        th:classappend="${latestIndexByDataset != null and latestIndexByDataset[ds.id] != null and latestIndexByDataset[ds.id] < 0.65 ? 'text-amber-800' : 'text-slate-900'}"
+                        th:text="${latestIndexByDataset != null and latestIndexByDataset[ds.id] != null ? #numbers.formatDecimal(latestIndexByDataset[ds.id], 1, 4) : '—'}">
+                        0.8500
+                    </td>
+                    <td class="py-3 px-3.5">
+                        <div class="flex flex-wrap items-center gap-1">
+                            <span class="font-mono-num text-[11px] px-2 py-0.5 rounded border border-slate-300 bg-white text-slate-700"
+                                  th:text="${ds.status}">ACTIVE</span>
+                            <span th:if="${expiredDatasetIds != null and expiredDatasetIds.contains(ds.id)}"
+                                  class="text-[11px] px-2 py-0.5 rounded border border-amber-400 bg-amber-50 text-amber-900 font-semibold">
+                                Срок истёк
+                            </span>
+                        </div>
+                    </td>
+                    <td class="py-3 px-3.5 text-slate-700" th:text="${ds.owner != null ? ds.owner.fullName : '—'}">Иван</td>
+                    <td class="py-3 px-3.5">
+                        <div class="flex flex-wrap justify-end gap-1.5">
+                            <form th:if="${user.role.name() != 'AUDITOR'}"
+                                  th:action="@{'/datasets/' + ${ds.id} + '/evaluate'}" method="post">
+                                <button class="border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 px-2.5 py-1 rounded font-medium transition">
+                                    Оценить
+                                </button>
+                            </form>
 
-                    <!-- OWNER: запросить удаление или архивацию своего активного набора -->
-                    <form th:if="${user.role.name() == 'OWNER' and ds.status != null and ds.status.name() == 'ACTIVE'}"
-                          th:action="@{'/datasets/' + ${ds.id} + '/request-removal'}" method="post">
-                        <input type="hidden" name="action" value="DELETE">
-                        <button class="bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1 rounded text-xs">Запросить удаление</button>
-                    </form>
+                            <form th:if="${user.role.name() == 'OWNER' and ds.status != null and ds.status.name() == 'ACTIVE'}"
+                                  th:action="@{'/datasets/' + ${ds.id} + '/request-removal'}" method="post">
+                                <input type="hidden" name="action" value="ARCHIVE">
+                                <button class="border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 px-2.5 py-1 rounded transition">
+                                    В архив
+                                </button>
+                            </form>
 
-                    <form th:if="${user.role.name() == 'OWNER' and ds.status != null and ds.status.name() == 'ACTIVE'}"
-                          th:action="@{'/datasets/' + ${ds.id} + '/request-removal'}" method="post">
-                        <input type="hidden" name="action" value="ARCHIVE">
-                        <button class="bg-slate-600 hover:bg-slate-700 text-white px-2.5 py-1 rounded text-xs">В архив</button>
-                    </form>
+                            <form th:if="${user.role.name() == 'OWNER' and ds.status != null and ds.status.name() == 'ACTIVE'}"
+                                  th:action="@{'/datasets/' + ${ds.id} + '/request-removal'}" method="post">
+                                <input type="hidden" name="action" value="DELETE">
+                                <button class="border border-amber-400 bg-amber-50 hover:bg-amber-100 text-amber-900 px-2.5 py-1 rounded font-medium transition">
+                                    Запрос удаления
+                                </button>
+                            </form>
 
-                    <!-- STEWARD / ADMIN: одобрить запрос -->
-                    <form th:if="${(user.role.name() == 'STEWARD' or user.role.name() == 'ADMIN') and ds.status != null and (ds.status.name() == 'DELETE_REQUESTED' or ds.status.name() == 'ARCHIVE_REQUESTED')}"
-                          th:action="@{'/datasets/' + ${ds.id} + '/approve-removal'}" method="post">
-                        <button class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded text-xs">Одобрить</button>
-                    </form>
+                            <form th:if="${(user.role.name() == 'STEWARD' or user.role.name() == 'ADMIN') and ds.status != null and (ds.status.name() == 'DELETE_REQUESTED' or ds.status.name() == 'ARCHIVE_REQUESTED')}"
+                                  th:action="@{'/datasets/' + ${ds.id} + '/approve-removal'}" method="post">
+                                <button class="bg-teal-800 hover:bg-teal-700 text-white px-2.5 py-1 rounded font-medium transition">
+                                    Согласовать
+                                </button>
+                            </form>
 
-                    <!-- ADMIN: исполнить подтверждённое удаление -->
-                    <form th:if="${user.role.name() == 'ADMIN' and ds.status != null and ds.status.name() == 'APPROVED_FOR_DELETE'}"
-                          th:action="@{'/datasets/' + ${ds.id} + '/execute-delete'}" method="post">
-                        <button class="bg-rose-600 hover:bg-rose-700 text-white px-2.5 py-1 rounded text-xs">Удалить</button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
+                            <form th:if="${user.role.name() == 'ADMIN' and ds.status != null and ds.status.name() == 'APPROVED_FOR_DELETE'}"
+                                  th:action="@{'/datasets/' + ${ds.id} + '/execute-delete'}" method="post">
+                                <button class="bg-rose-700 hover:bg-rose-800 text-white px-2.5 py-1 rounded font-medium transition">
+                                    Удалить
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
 
-    <!-- Управление пользователями и ролями (ADMIN) -->
-    <div th:if="${user.role.name() == 'ADMIN' and allUsers != null}"
-         class="bg-white rounded-xl shadow p-5 overflow-x-auto space-y-3">
-        <h2 class="text-lg font-semibold">Управление пользователями и ролями (ADMIN)</h2>
-        <table class="w-full text-sm text-left border-collapse">
-            <thead>
-            <tr class="border-b bg-slate-50">
-                <th class="p-2">ID</th>
-                <th class="p-2">ФИО</th>
-                <th class="p-2">Email</th>
-                <th class="p-2">Текущая роль</th>
-                <th class="p-2">Назначить роль</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="u : ${allUsers}" class="border-b hover:bg-slate-50">
-                <td class="p-2" th:text="${u.id}">1</td>
-                <td class="p-2 font-medium" th:text="${u.fullName}">Иван Иванов</td>
-                <td class="p-2 font-mono text-xs" th:text="${u.email}">user@insurance.local</td>
-                <td class="p-2">
-                    <span class="px-2 py-0.5 rounded bg-slate-100 text-xs font-semibold" th:text="${u.role}">OWNER</span>
-                </td>
-                <td class="p-2">
-                    <form th:action="@{'/admin/users/' + ${u.id} + '/role'}" method="post" class="flex gap-2 items-center">
-                        <select name="role" class="border rounded px-2 py-1 text-xs bg-white">
-                            <option value="OWNER" th:selected="${u.role.name() == 'OWNER'}">OWNER</option>
-                            <option value="STEWARD" th:selected="${u.role.name() == 'STEWARD'}">STEWARD</option>
-                            <option value="AUDITOR" th:selected="${u.role.name() == 'AUDITOR'}">AUDITOR</option>
-                            <option value="ADMIN" th:selected="${u.role.name() == 'ADMIN'}">ADMIN</option>
-                        </select>
-                        <button type="submit" class="bg-slate-800 hover:bg-slate-700 text-white px-2.5 py-1 rounded text-xs">
-                            Сохранить
+    <!-- Блок 3: Администрирование и политика хранения (вкладки) -->
+    <section th:if="${user.role.name() == 'STEWARD' or user.role.name() == 'ADMIN'}"
+             class="bg-white border border-slate-300 rounded-md shadow-xs overflow-hidden">
+        <div class="px-5 pt-3.5 bg-slate-50 border-b border-slate-300 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-1.5 -mb-px text-xs font-semibold" role="tablist">
+                <button type="button" data-tab-btn="retention"
+                        class="tab-btn px-3.5 py-2.5 rounded-t border border-b-white border-slate-300 bg-white text-slate-900">
+                    Политики хранения (Retention)
+                </button>
+                <button th:if="${user.role.name() == 'ADMIN'}" type="button" data-tab-btn="backups"
+                        class="tab-btn px-3.5 py-2.5 rounded-t border border-transparent text-slate-600 hover:text-slate-900">
+                    Резервное копирование (MongoDB)
+                </button>
+                <button th:if="${user.role.name() == 'ADMIN' and allUsers != null}" type="button" data-tab-btn="users"
+                        class="tab-btn px-3.5 py-2.5 rounded-t border border-transparent text-slate-600 hover:text-slate-900">
+                    Права и роли доступа
+                </button>
+            </div>
+            <span class="text-[11px] font-medium text-slate-500 pb-2">Контур регламентов и администрирования</span>
+        </div>
+
+        <!-- Вкладка 1: Правила хранения -->
+        <div data-tab-panel="retention" class="p-5 space-y-4">
+            <form th:action="@{/retention-rules}" method="post" class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+                <input type="text" name="category" list="insuranceCategories"
+                       placeholder="Категория (напр. Полисы КАСКО)" required
+                       class="border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none focus:border-slate-800">
+                <input type="number" name="daysToKeep" placeholder="Срок хранения, дней" min="1" required
+                       class="border border-slate-300 rounded px-2.5 py-1.5 tabular-nums focus:outline-none focus:border-slate-800">
+                <select name="action" class="border border-slate-300 rounded px-2.5 py-1.5 bg-white focus:outline-none focus:border-slate-800">
+                    <option value="ARCHIVE">ARCHIVE — перевод в архив</option>
+                    <option value="DELETE">DELETE — постановка на удаление</option>
+                </select>
+                <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white font-medium rounded px-4 py-1.5 transition">
+                    Сохранить правило
+                </button>
+            </form>
+
+            <div th:if="${retentionRules != null and !#lists.isEmpty(retentionRules)}" class="border border-slate-300 rounded overflow-hidden">
+                <table class="w-full text-xs text-left border-collapse">
+                    <thead>
+                    <tr class="bg-slate-100/70 border-b border-slate-300 text-[11px] uppercase text-slate-600">
+                        <th class="py-2.5 px-3.5 font-semibold">Категория данных</th>
+                        <th class="py-2.5 px-3.5 font-semibold text-right">Срок хранения</th>
+                        <th class="py-2.5 px-3.5 font-semibold text-right">Регламентное действие</th>
+                    </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200">
+                    <tr th:each="rule : ${retentionRules}" class="odd:bg-white even:bg-slate-50/40">
+                        <td class="py-2.5 px-3.5 font-medium text-slate-800" th:text="${rule.category}">Полисы</td>
+                        <td class="py-2.5 px-3.5 font-mono-num text-right text-slate-700" th:text="${rule.daysToKeep} + ' дн.'">1825 дн.</td>
+                        <td class="py-2.5 px-3.5 text-right">
+                            <span class="font-mono-num text-[11px] px-2 py-0.5 rounded border border-slate-300 bg-white text-slate-700"
+                                  th:text="${rule.action}">ARCHIVE</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Вкладка 2: Бэкапы (ADMIN) -->
+        <div th:if="${user.role.name() == 'ADMIN'}" data-tab-panel="backups" class="hidden p-5 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <p class="text-xs text-slate-600">
+                    Снимки состояния каталога в MongoDB с проверкой целостности по контрольной сумме SHA-256.
+                </p>
+                <div class="flex gap-2 text-xs">
+                    <form th:action="@{/admin/backup}" method="post">
+                        <input type="hidden" name="type" value="FULL">
+                        <button class="bg-slate-900 hover:bg-slate-800 text-white font-medium px-3 py-1.5 rounded transition">
+                            Создать FULL Backup
                         </button>
                     </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
+                    <form th:action="@{/admin/backup}" method="post">
+                        <input type="hidden" name="type" value="INCREMENTAL">
+                        <button class="border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 font-medium px-3 py-1.5 rounded transition">
+                            Создать INCREMENTAL Backup
+                        </button>
+                    </form>
+                </div>
+            </div>
 
-    <!-- График истории индекса + Журнал аудита -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="bg-white rounded-xl shadow p-5">
-            <h2 class="text-lg font-semibold mb-3">Динамика индекса экологичности (I)</h2>
-            <canvas id="ecoChart" height="140"></canvas>
+            <p th:if="${backups == null or #lists.isEmpty(backups)}" class="text-xs text-slate-500">
+                Резервные копии ещё не создавались.
+            </p>
+
+            <div th:if="${backups != null and !#lists.isEmpty(backups)}" class="border border-slate-300 rounded overflow-x-auto">
+                <table class="w-full text-xs text-left border-collapse">
+                    <thead>
+                    <tr class="border-b border-slate-300 bg-slate-100/70 text-[11px] uppercase text-slate-600">
+                        <th class="py-2.5 px-3.5 font-semibold">Дата создания</th>
+                        <th class="py-2.5 px-3.5 font-semibold">Тип</th>
+                        <th class="py-2.5 px-3.5 font-semibold text-right">Объектов</th>
+                        <th class="py-2.5 px-3.5 font-semibold text-right">Размер, Б</th>
+                        <th class="py-2.5 px-3.5 font-semibold">Контрольная сумма SHA-256</th>
+                        <th class="py-2.5 px-3.5 font-semibold text-right">Действия</th>
+                    </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200">
+                    <tr th:each="b : ${backups}" class="odd:bg-white even:bg-slate-50/40 hover:bg-slate-100/70">
+                        <td class="py-2.5 px-3.5 font-mono-num text-slate-700" th:text="${b.createdAt}">2026-11-25</td>
+                        <td class="py-2.5 px-3.5">
+                            <span class="font-mono-num text-[11px] px-2 py-0.5 rounded border border-slate-300 bg-white" th:text="${b.type}">FULL</span>
+                        </td>
+                        <td class="py-2.5 px-3.5 font-mono-num text-right" th:text="${b.itemCount}">3</td>
+                        <td class="py-2.5 px-3.5 font-mono-num text-right" th:text="${b.sizeBytes}">512</td>
+                        <td class="py-2.5 px-3.5 font-mono-num text-[11px] text-slate-500"
+                            th:title="${b.checksum}"
+                            th:text="${b.checksum != null ? #strings.abbreviate(b.checksum, 22) : '—'}">sha256</td>
+                        <td class="py-2.5 px-3.5">
+                            <div class="flex justify-end gap-1.5">
+                                <form th:action="@{'/admin/backup/' + ${b.id} + '/verify'}" method="post">
+                                    <button class="border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 px-2.5 py-1 rounded">
+                                        Проверить SHA-256
+                                    </button>
+                                </form>
+                                <form th:action="@{'/admin/backup/' + ${b.id} + '/restore'}" method="post">
+                                    <button class="bg-teal-800 hover:bg-teal-700 text-white px-2.5 py-1 rounded">
+                                        Восстановить
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow p-5 space-y-4">
-            <h2 class="text-lg font-semibold">Журнал аудита (MongoDB)</h2>
-            <ul class="text-xs space-y-1.5 max-h-48 overflow-y-auto font-mono">
-                <li th:each="log : ${logs}" class="border-b pb-1">
-                    <span class="text-slate-500" th:text="${log.timestamp}"></span> —
-                    <strong th:text="${log.action}"></strong>:
-                    <span th:text="${log.details}"></span>
-                </li>
-            </ul>
+        <!-- Вкладка 3: Пользователи и роли (ADMIN) -->
+        <div th:if="${user.role.name() == 'ADMIN' and allUsers != null}" data-tab-panel="users" class="hidden p-5">
+            <div class="border border-slate-300 rounded overflow-x-auto">
+                <table class="w-full text-xs text-left border-collapse">
+                    <thead>
+                    <tr class="border-b border-slate-300 bg-slate-100/70 text-[11px] uppercase text-slate-600">
+                        <th class="py-2.5 px-3.5 font-semibold">ID</th>
+                        <th class="py-2.5 px-3.5 font-semibold">Сотрудник</th>
+                        <th class="py-2.5 px-3.5 font-semibold">Учётная запись (Email)</th>
+                        <th class="py-2.5 px-3.5 font-semibold">Текущая роль</th>
+                        <th class="py-2.5 px-3.5 font-semibold text-right">Изменение роли</th>
+                    </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200">
+                    <tr th:each="u : ${allUsers}" class="odd:bg-white even:bg-slate-50/40 hover:bg-slate-100/70">
+                        <td class="py-2.5 px-3.5 font-mono-num text-slate-500" th:text="${u.id}">1</td>
+                        <td class="py-2.5 px-3.5 font-medium text-slate-900" th:text="${u.fullName}">Иван Иванов</td>
+                        <td class="py-2.5 px-3.5 font-mono-num text-slate-600" th:text="${u.email}">user@insurance.local</td>
+                        <td class="py-2.5 px-3.5">
+                            <span class="font-mono-num text-[11px] px-2 py-0.5 rounded border border-slate-300 bg-white" th:text="${u.role}">OWNER</span>
+                        </td>
+                        <td class="py-2.5 px-3.5">
+                            <form th:action="@{'/admin/users/' + ${u.id} + '/role'}" method="post" class="flex justify-end gap-2 items-center">
+                                <select name="role" class="border border-slate-300 rounded px-2 py-1 text-xs bg-white">
+                                    <option value="OWNER" th:selected="${u.role.name() == 'OWNER'}">OWNER</option>
+                                    <option value="STEWARD" th:selected="${u.role.name() == 'STEWARD'}">STEWARD</option>
+                                    <option value="AUDITOR" th:selected="${u.role.name() == 'AUDITOR'}">AUDITOR</option>
+                                    <option value="ADMIN" th:selected="${u.role.name() == 'ADMIN'}">ADMIN</option>
+                                </select>
+                                <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white px-2.5 py-1 rounded">
+                                    Сохранить
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
+    </section>
+
+    <!-- Блок 4: Аналитика динамики индекса + Журнал аудита -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-5 bg-white border border-slate-300 rounded-md shadow-xs overflow-hidden flex flex-col justify-between">
+            <div class="px-5 py-3.5 bg-slate-50 border-b border-slate-300">
+                <h2 class="text-sm font-semibold text-slate-900">Динамика индекса экологичности (I)</h2>
+                <p class="text-xs text-slate-500 mt-0.5">История последних расчётов по реестру</p>
+            </div>
+            <div class="p-5 relative h-56">
+                <canvas id="ecoChart"></canvas>
+            </div>
+        </div>
+
+        <div class="lg:col-span-7 bg-white border border-slate-300 rounded-md shadow-xs overflow-hidden flex flex-col">
+            <div class="px-5 py-3.5 bg-slate-50 border-b border-slate-300 flex items-center justify-between">
+                <div>
+                    <h2 class="text-sm font-semibold text-slate-900">Журнал аудита операций</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Неизменяемая фиксация событий в MongoDB</p>
+                </div>
+                <span class="font-mono-num text-[10px] font-semibold px-2 py-0.5 rounded bg-white border border-slate-300 text-slate-700">AUDIT TRAIL</span>
+            </div>
+            <div class="divide-y divide-slate-200 max-h-64 overflow-y-auto text-xs">
+                <div th:each="log : ${logs}" class="px-5 py-2.5 odd:bg-white even:bg-slate-50/40 hover:bg-slate-100/70 flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-3">
+                    <span class="font-mono-num text-[11px] text-slate-500 shrink-0" th:text="${log.timestamp}">2026-11-25T14:56</span>
+                    <span class="font-mono-num text-[11px] font-semibold text-slate-800 shrink-0" th:text="${log.action}">CREATE</span>
+                    <span class="font-mono-num text-[11px] text-slate-600 break-all" th:text="${log.details}">details</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
 </main>
 
 <script th:inline="javascript">
+    // Переключение вкладок администрирования
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const target = btn.getAttribute('data-tab-btn');
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.remove('border-b-white', 'border-slate-300', 'bg-white', 'text-slate-900');
+                b.classList.add('border-transparent', 'text-slate-600');
+            });
+            btn.classList.remove('border-transparent', 'text-slate-600');
+            btn.classList.add('border-b-white', 'border-slate-300', 'bg-white', 'text-slate-900');
+
+            document.querySelectorAll('[data-tab-panel]').forEach(panel => {
+                panel.classList.toggle('hidden', panel.getAttribute('data-tab-panel') !== target);
+            });
+        });
+    });
+
+    // График истории индекса экологичности
     const historyData = /*[[${history}]]*/ [];
     const labels = historyData.map(h => '#' + h.id);
     const values = historyData.map(h => h.integralIndex);
@@ -399,13 +624,36 @@
         data: {
             labels: labels,
             datasets: [{
-                label: 'Индекс экологичности I',
+                label: 'Индекс I',
                 data: values,
-                borderColor: '#059669',
-                tension: 0.25
+                borderColor: '#0F172A',
+                backgroundColor: 'rgba(15, 23, 42, 0.08)',
+                borderWidth: 2,
+                pointRadius: 3,
+                pointBackgroundColor: '#0F172A',
+                fill: true,
+                tension: 0.2
             }]
         },
-        options: { scales: { y: { min: 0, max: 1 } } }
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { font: { size: 11 } }
+                },
+                y: {
+                    min: 0,
+                    max: 1,
+                    grid: { color: '#CBD5E1' },
+                    ticks: { font: { size: 11 } }
+                }
+            }
+        }
     });
 </script>
 </body>

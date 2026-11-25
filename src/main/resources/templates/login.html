@@ -2,53 +2,95 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Вход — Экология данных</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход в систему — Data Ecology &amp; Lifecycle</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+        .font-mono-num { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+    </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen flex items-center justify-center p-6">
+<body class="bg-[#EAEEF3] text-slate-900 antialiased min-h-screen flex flex-col">
 
-<div class="max-w-md w-full bg-white rounded-xl shadow p-6 space-y-5">
-    <div class="border-b pb-3">
-        <h1 class="text-xl font-bold text-slate-900">Вход в систему</h1>
-        <p class="text-xs text-slate-500 mt-1">
-            Система управления жизненным циклом данных · Страховая компания
-        </p>
-    </div>
-
-    <div th:if="${param.error}" class="bg-rose-50 border border-rose-300 text-rose-800 px-3 py-2.5 rounded-lg text-xs">
-        Неверный email или пароль. Проверьте введённые данные.
-    </div>
-    <div th:if="${param.logout}" class="bg-emerald-50 border border-emerald-300 text-emerald-800 px-3 py-2.5 rounded-lg text-xs">
-        Вы успешно вышли из аккаунта.
-    </div>
-
-    <form th:action="@{/login}" method="post" class="space-y-4 text-sm">
-        <div>
-            <label for="email" class="block text-xs font-medium text-slate-600 mb-1">Email</label>
-            <input id="email" type="email" name="email" required autofocus
-                   placeholder="user@insurance.local"
-                   class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-800">
+<header class="bg-slate-900 text-white border-b border-slate-800 shadow-sm">
+    <div class="max-w-[1380px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+            <div class="w-7 h-7 rounded bg-teal-500/20 border border-teal-400/40 text-teal-300 flex items-center justify-center text-xs font-semibold tracking-tight">
+                DE
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="font-semibold text-sm text-white">Data Ecology &amp; Lifecycle</span>
+                <span class="hidden sm:inline-block text-[10px] font-mono-num px-1.5 py-0.5 rounded border border-slate-700 bg-slate-800 text-slate-300">
+                    INSURANCE CORE
+                </span>
+            </div>
         </div>
-
-        <div>
-            <label for="password" class="block text-xs font-medium text-slate-600 mb-1">Пароль</label>
-            <input id="password" type="password" name="password" required
-                   placeholder="••••••••"
-                   class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-800">
-        </div>
-
-        <button type="submit"
-                class="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-2.5 rounded-lg transition">
-            Войти
-        </button>
-    </form>
-
-    <div class="text-center pt-1">
-        <a th:href="@{/about}" class="text-xs text-slate-500 hover:text-slate-800 underline">
-            Об авторе и проекте
+        <a th:href="@{/about}" class="text-xs font-medium text-slate-300 hover:text-white px-3 py-1.5 rounded border border-slate-700 hover:bg-slate-800 transition">
+            О проекте и авторе
         </a>
     </div>
-</div>
+</header>
+
+<main class="flex-1 flex items-center justify-center px-4 py-10">
+    <div class="w-full max-w-md bg-white border border-slate-300 rounded-md shadow-xs overflow-hidden">
+        <div class="px-5 py-3.5 bg-slate-50 border-b border-slate-300 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-teal-700"></span>
+                <h1 class="text-sm font-semibold text-slate-900">Аутентификация пользователя</h1>
+            </div>
+            <span class="text-[10px] font-mono-num uppercase px-2 py-0.5 rounded bg-white border border-slate-300 text-slate-600">SSO / LOCAL</span>
+        </div>
+
+        <div class="p-6 space-y-4">
+            <p class="text-xs text-slate-500">
+                Введите корпоративные учётные данные для доступа к контуру управления жизненным циклом данных страховой компании.
+            </p>
+
+            <div th:if="${param.error}"
+                 class="flex items-center gap-2.5 bg-slate-50 border border-slate-300 border-l-4 border-l-rose-700 px-3.5 py-2.5 rounded text-xs text-slate-800">
+                <span class="font-mono-num uppercase text-[10px] font-semibold px-1.5 py-0.5 rounded bg-rose-50 text-rose-800 border border-rose-300">ERR</span>
+                <span>Неверный email или пароль. Проверьте введённые данные.</span>
+            </div>
+
+            <div th:if="${param.logout}"
+                 class="flex items-center gap-2.5 bg-slate-50 border border-slate-300 border-l-4 border-l-teal-700 px-3.5 py-2.5 rounded text-xs text-slate-800">
+                <span class="font-mono-num uppercase text-[10px] font-semibold px-1.5 py-0.5 rounded bg-teal-50 text-teal-800 border border-teal-300">OK</span>
+                <span>Сеанс завершён. Вы вышли из аккаунта.</span>
+            </div>
+
+            <form th:action="@{/login}" method="post" class="space-y-4 text-xs">
+                <div>
+                    <label for="email" class="block text-slate-700 font-medium mb-1">Email (логин)</label>
+                    <input id="email" type="email" name="email" required autofocus
+                           placeholder="user@insurance.local"
+                           class="w-full border border-slate-300 rounded px-3 py-2 bg-white text-slate-900 focus:outline-none focus:border-slate-800">
+                </div>
+
+                <div>
+                    <label for="password" class="block text-slate-700 font-medium mb-1">Пароль</label>
+                    <input id="password" type="password" name="password" required
+                           placeholder="••••••••"
+                           class="w-full border border-slate-300 rounded px-3 py-2 bg-white text-slate-900 focus:outline-none focus:border-slate-800">
+                </div>
+
+                <button type="submit"
+                        class="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-2 px-4 rounded transition">
+                    Войти в систему
+                </button>
+            </form>
+        </div>
+
+        <div class="px-6 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-500">
+            <span>Роли: OWNER · STEWARD · AUDITOR · ADMIN</span>
+            <a th:href="@{/about}" class="font-medium text-slate-700 hover:text-slate-900 underline underline-offset-2">
+                Об авторе
+            </a>
+        </div>
+    </div>
+</main>
 
 </body>
 </html>
