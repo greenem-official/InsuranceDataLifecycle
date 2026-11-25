@@ -157,6 +157,59 @@
         </ul>
     </div>
 
+    <!-- Расчёт стоимости хранения и энергопотребления -->
+    <div th:if="${costReport != null}" class="bg-white rounded-xl shadow p-5 space-y-3">
+        <div class="flex flex-wrap justify-between items-center gap-2">
+            <h2 class="text-lg font-semibold">Стоимость хранения и энергопотребление</h2>
+            <span class="text-xs text-slate-500">
+            Объём в выборке: <strong th:text="${costReport.totalSizeGb}">0.0</strong> ГБ
+            (потенциал оптимизации: <strong class="text-amber-700" th:text="${costReport.wastedSizeGb}">0.0</strong> ГБ)
+        </span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+            <div class="bg-slate-50 p-3.5 rounded-lg">
+                <div class="text-xs text-slate-500">Стоимость / мес. (год)</div>
+                <div class="text-lg font-bold text-slate-800 mt-0.5">
+                    <span th:text="${costReport.monthlyCostRub}">0.00</span> ₽
+                    <span class="text-xs font-normal text-slate-500">
+                    (<span th:text="${costReport.annualCostRub}">0.00</span> ₽/год)
+                </span>
+                </div>
+            </div>
+
+            <div class="bg-emerald-50 p-3.5 rounded-lg">
+                <div class="text-xs text-emerald-700">Потенциальная экономия</div>
+                <div class="text-lg font-bold text-emerald-700 mt-0.5">
+                    <span th:text="${costReport.potentialMonthlySavingsRub}">0.00</span> ₽/мес
+                    <span class="text-xs font-normal">
+                    (<span th:text="${costReport.potentialAnnualSavingsRub}">0.00</span> ₽/год)
+                </span>
+                </div>
+            </div>
+
+            <div class="bg-slate-50 p-3.5 rounded-lg">
+                <div class="text-xs text-slate-500">Энергопотребление / мес. (год)</div>
+                <div class="text-lg font-bold text-slate-800 mt-0.5">
+                    <span th:text="${costReport.monthlyEnergyKwh}">0.0000</span> кВт·ч
+                    <span class="text-xs font-normal text-slate-500">
+                    (<span th:text="${costReport.annualEnergyKwh}">0.0000</span> кВт·ч/год)
+                </span>
+                </div>
+            </div>
+
+            <div class="bg-sky-50 p-3.5 rounded-lg">
+                <div class="text-xs text-sky-700">Экономия энергии (кВт·ч)</div>
+                <div class="text-lg font-bold text-sky-700 mt-0.5">
+                    <span th:text="${costReport.potentialMonthlyEnergySavingsKwh}">0.0000</span> кВт·ч/мес
+                    <span class="text-xs font-normal">
+                    (<span th:text="${costReport.potentialAnnualEnergySavingsKwh}">0.0000</span> кВт·ч/год)
+                </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Таблица наборов данных с поиском, сортировкой и цепочкой согласования -->
     <div class="bg-white rounded-xl shadow p-5 overflow-x-auto">
         <h2 class="text-lg font-semibold mb-3">Каталог наборов данных</h2>

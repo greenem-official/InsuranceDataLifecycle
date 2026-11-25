@@ -17,6 +17,7 @@ import org.daylight.insurancecompamy.repositories.postgresql.UserRepository;
 import org.daylight.insurancecompamy.service.BackupService;
 import org.daylight.insurancecompamy.service.CsvInventoryService;
 import org.daylight.insurancecompamy.service.EcologyService;
+import org.daylight.insurancecompamy.service.StorageCostService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -42,6 +43,7 @@ public class DashboardController {
     private final CsvInventoryService csvInventoryService;
     private final RetentionRuleRepository retentionRuleRepository;
     private final BackupService backupService;
+    private final StorageCostService storageCostService;
 
     @GetMapping("/")
     public String dashboard(@AuthenticationPrincipal UserDetails principal,
@@ -80,6 +82,7 @@ public class DashboardController {
 
         List<AuditLog> logs = auditLogRepository.findAllByOrderByTimestampDesc();
         List<BackupMetadata> backups = backupMetadataRepository.findAllByOrderByCreatedAtDesc();
+        StorageCostReportDto costReport = storageCostService.calculate(datasets);
 
         model.addAttribute("user", currentUser);
         model.addAttribute("datasets", datasets);
@@ -92,6 +95,7 @@ public class DashboardController {
         model.addAttribute("sortBy", sortBy);
         model.addAttribute("dir", dir);
         model.addAttribute("retentionRules", retentionRuleRepository.findAll());
+        model.addAttribute("costReport", costReport);
 
         return "dashboard";
     }
